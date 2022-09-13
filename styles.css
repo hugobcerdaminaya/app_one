@@ -1,0 +1,22 @@
+.form {
+    width: 100%;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.button{
+    background: orangered;
+    border: none;
+    padding: 0.2rem 0.8rem;
+    border-radius: 15px;
+    color: #ccc;
+    cursor: pointer;
+    margin: 1rem 0;
+}
+
+.esquemas{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    justify-items: center;
+    align-items: center;
+}
