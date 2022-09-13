@@ -1,16 +1,20 @@
 const indexedDB = window.indexedDB
-if(indexedDB){
+const form = document.getElementById("form")
+const esquemas = document.getElementById("esquemas")
+
+if(indexedDB && form){
     let db
     const request = indexedDB.open('ListasEsquemas', 1)
     request.onsuccess = () =>{
         db = request.result
         console.log('OPEN', db)
+        readData()
     }
 
     request.onupgradeneeded = () =>{
         db = request.result
         console.log('CREATE', db)
-        const objectSore = db.createObjectStore('esquemas',{autoIncrement:true})
+        const objectSore = db.createObjectStore('esquemas',{keyPath:"esquemaTitulo"})
     }
 
     request.onerror = (error) =>{
@@ -21,59 +25,101 @@ if(indexedDB){
         const transaction = db.transaction(['esquemas'],'readwrite')
         const objectStore = transaction.objectStore('esquemas')
         const request = objectStore.add(data);
+        readData()
+    }
+
+    const getData = (key) => {
+        const transaction = db.transaction(['esquemas'],'readwrite')
+        const objectStore = transaction.objectStore('esquemas')
+        const request = objectStore.get(key);
+        request.onsuccess = (e) => {
+            form.titulo.value = request.result.esquemaTitulo
+            form.prioridad.value = request.result.esquemaPrioridad
+            form.button.dataset.action = "update"
+            form.button.textContent = "Actualizar esquema"
+        }
+    }
+
+    const updateData = (data) => {
+        const transaction = db.transaction(['esquemas'],'readwrite')
+        const objectStore = transaction.objectStore('esquemas')
+        const request = objectStore.put(data);
+        request.onsuccess = (e) => {
+            form.button.dataset.action = "add"
+            form.button.textContent = "Añadir esquema"
+            readData()
+        }
+    }
+
+    const deleteData = (key) => {
+        const transaction = db.transaction(['esquemas'],'readwrite')
+        const objectStore = transaction.objectStore('esquemas')
+        const request = objectStore.delete(key);
+        request.onsuccess = (e) => {
+            readData()
+        }
     }
 
     const readData = (data) => {
         const transaction = db.transaction(['esquemas'],'readonly')
         const objectStore = transaction.objectStore('esquemas')
         const request = objectStore.openCursor()
-        request.onsuccess = (e) =>{
+        const fragmento = document.createDocumentFragment()
+
+        request.onsuccess = (e) => {
             const cursor = e.target.result
             if(cursor){
-                console.log(cursor.value.information);
-                let datos = cursor.value.information;
-                let res = document.querySelector('#response');
-                res.innerHTML = ''; 
-                for(let item of datos){
-                    res.innerHTML += `
-                        <tr>
-                            <td>${item.variable}</td>
-                            <td>${item.atributo}</td>
-                        </tr>
-                    `
-                }
+
+                const esquemaTitulo = document.createElement("p")
+                esquemaTitulo.textContent = cursor.value.esquemaTitulo
+                fragmento.appendChild(esquemaTitulo)
+                
+                const esquemaPrioridad = document.createElement("p")
+                esquemaPrioridad.textContent = cursor.value.esquemaPrioridad
+                fragmento.appendChild(esquemaPrioridad)
+                
+                const esquemaActualizar = document.createElement("button")
+                esquemaActualizar.dataset.type = "update"
+                esquemaActualizar.dataset.key = cursor.key
+                esquemaActualizar.textContent = "Actualizar"
+                fragmento.appendChild(esquemaActualizar)
+
+                const esquemaEliminar = document.createElement("button")
+                esquemaEliminar.dataset.type = "delete"
+                esquemaEliminar.textContent = "Eliminar"
+                esquemaEliminar.dataset.key = cursor.key
+                fragmento.appendChild(esquemaEliminar)
+
                 cursor.continue()
             }else{
-                console.log('No hay mas datos')
+                esquemas.textContent = ""
+                esquemas.appendChild(fragmento)
             }
         }
     }
 
-    document.querySelector('#boton_escribir').addEventListener('click', (e) => {
+    form.addEventListener("submit", (e) => {
         e.preventDefault()
-        const info = [
-                            {
-                                "variable": "Input",
-                                "atributo": "Para captura de un texto simple"
-                            },
-                            {
-                                "variable": "Text area",
-                                "atributo": "Para captura de un texto de mayor longitud"
-                            },
-                            {
-                                "variable": "Checkbox",
-                                "atributo": "Para selección de una o más opciones disponibles"
-                            }
-                    ]
         const data = {
-            information: info
+            esquemaTitulo: e.target.titulo.value,
+            esquemaPrioridad: e.target.prioridad.value
         }
-        addData(data)
+        
+        if(e.target.button.dataset.action == "add"){
+            addData(data)
+        }else if(e.target.button.dataset.action == "update"){
+            updateData(data)
+        }
+        form.reset()
     })
 
-    document.querySelector('#boton_leer').addEventListener('click', (e) => {
-        e.preventDefault()
-        readData()
+    esquemas.addEventListener("click", (e) =>{
+        if(e.target.dataset.type == "update"){
+            getData(e.target.dataset.key)
+        }else if(e.target.dataset.type == "delete"){
+            deleteData(e.target.dataset.key)
+        }
+
     })
 
 }

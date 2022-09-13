@@ -2,24 +2,23 @@
 <html>
 <head>
    <meta charset="utf-8"/>
-   <title>App one</title>    
+   <title>App one</title>  
+   <link rel="stylesheet" href="styles.css">  
 </head>
 <body>
      Contenido de app one
-     <button id="boton_escribir">Escribir en IndexDB</button>
-     <button id="boton_leer">Leer IndexDB</button>
-     <table>
-        <thead>
-            <tr>
-                <th>Variable</th>
-                <th>Atributo</th>    
-            </tr>
-        </thead>
-        <tbody id="response">
-
-        </tbody>
-     </table>
-     <!--<script  src="index.js"></script>-->
+     <form id="form" class="form">
+        <label for="titulo">Esquemas</label>
+        <input type="text" name="titulo">
+        <select name="prioridad">
+            <option value="Baja">Baja</option>
+            <option value="Normal">Normal</option>
+            <option value="Alta">Alta</option>
+        </select>
+        <button class="button" name="button" data-action="add">Añadir esquema</button>
+     </form>
+     <div id="esquemas" class="esquemas"></div>
+     <link >
      <script  src="indexeddb.js"></script>
 </body>
 </html>
