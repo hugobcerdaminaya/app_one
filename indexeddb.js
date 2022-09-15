@@ -1,59 +1,14 @@
+
+//***********************/
+//Example use indexed db  
+
 const indexedDB = window.indexedDB
 const form = document.getElementById("form")
 const esquemas = document.getElementById("esquemas")
-
-//Example use dexie.js  
-const db = new Dexie("FriendDatabase");
-db.version(1).stores({
-  friends: `
-    id,
-    name,
-    age`,
-});
-
-// Now add some values.
-db.friends.bulkPut([
-    { id: 1, name: "Josephine", age: 21 },
-    { id: 2, name: "Per", age: 75 },
-    { id: 3, name: "Simon", age: 5 },
-    { id: 4, name: "Sara", age: 50, notIndexedProperty: 'foo' }
-  ]).then(() => {
-
-    return db.friends.where("age").between(0, 25).toArray();
-
-  }).then(friends => {
-
-    console.log("Found young friends: " +
-      friends.map(friend => friend.name));
-
-    return db.friends
-      .orderBy("age")
-      .reverse()
-      .toArray();
-
-  }).then(friends => {
-
-    console.log("Friends in reverse age order: " +
-      friends.map(friend => `${friend.name} ${friend.age}`));
-
-    return db.friends.where('name').startsWith("S").keys();
-
-  }).then(friendNames => {
-
-    console.log("Friends on 'S': " + friendNames);
-
-  }).catch(err => {
-
-    console.log("Ouch... " + err);
-
-  });
-
-//Example use dexie.js  
-
-
+let id = 1
 if(indexedDB && form){
     let db
-    const request = indexedDB.open('ListasEsquemas', 1)
+    const request = indexedDB.open('EsquemasBD', 1)
     request.onsuccess = () =>{
         db = request.result
         console.log('OPEN', db)
@@ -63,7 +18,7 @@ if(indexedDB && form){
     request.onupgradeneeded = () =>{
         db = request.result
         console.log('CREATE', db)
-        const objectSore = db.createObjectStore('esquemas',{keyPath:"esquemaTitulo"})
+        const objectSore = db.createObjectStore('esquemas',{keyPath:"id"})
     }
 
     request.onerror = (error) =>{
@@ -78,12 +33,14 @@ if(indexedDB && form){
     }
 
     const getData = (key) => {
+        console.log(key)
         const transaction = db.transaction(['esquemas'],'readwrite')
         const objectStore = transaction.objectStore('esquemas')
         const request = objectStore.get(key);
         request.onsuccess = (e) => {
-            form.titulo.value = request.result.esquemaTitulo
-            form.prioridad.value = request.result.esquemaPrioridad
+            console.log(request)
+            form.info.value = request.result.info
+            form.version.value = request.result.version
             form.button.dataset.action = "update"
             form.button.textContent = "Actualizar esquema"
         }
@@ -119,25 +76,25 @@ if(indexedDB && form){
             const cursor = e.target.result
             if(cursor){
 
-                const esquemaTitulo = document.createElement("p")
-                esquemaTitulo.textContent = cursor.value.esquemaTitulo
-                fragmento.appendChild(esquemaTitulo)
+                const info = document.createElement("p")
+                info.textContent = 'Esquema: '+ cursor.value.info
+                fragmento.appendChild(info)
                 
-                const esquemaPrioridad = document.createElement("p")
-                esquemaPrioridad.textContent = cursor.value.esquemaPrioridad
-                fragmento.appendChild(esquemaPrioridad)
+                const version = document.createElement("p")
+                version.textContent = 'Versión: '+ cursor.value.version
+                fragmento.appendChild(version)
                 
-                const esquemaActualizar = document.createElement("button")
-                esquemaActualizar.dataset.type = "update"
-                esquemaActualizar.dataset.key = cursor.key
-                esquemaActualizar.textContent = "Actualizar"
-                fragmento.appendChild(esquemaActualizar)
+                const actualizar = document.createElement("button")
+                actualizar.dataset.type = "update"
+                actualizar.dataset.key = cursor.key
+                actualizar.textContent = "Actualizar"
+                fragmento.appendChild(actualizar)
 
-                const esquemaEliminar = document.createElement("button")
-                esquemaEliminar.dataset.type = "delete"
-                esquemaEliminar.textContent = "Eliminar"
-                esquemaEliminar.dataset.key = cursor.key
-                fragmento.appendChild(esquemaEliminar)
+                const eliminar = document.createElement("button")
+                eliminar.dataset.type = "delete"
+                eliminar.textContent = "Eliminar"
+                eliminar.dataset.key = cursor.key
+                fragmento.appendChild(eliminar)
 
                 cursor.continue()
             }else{
@@ -150,10 +107,11 @@ if(indexedDB && form){
     form.addEventListener("submit", (e) => {
         e.preventDefault()
         const data = {
-            esquemaTitulo: e.target.titulo.value,
-            esquemaPrioridad: e.target.prioridad.value
+            id: id,
+            info: e.target.info.value,
+            version: e.target.version.value
         }
-        
+        id++
         if(e.target.button.dataset.action == "add"){
             addData(data)
         }else if(e.target.button.dataset.action == "update"){
