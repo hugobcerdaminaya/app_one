@@ -1,22 +1,44 @@
-.form {
-    width: 100%;
-    margin-top: 2rem;
-    text-align: center;
+.d-flex input{
+    margin: .9em 0em;
 }
 
-.button{
-    background: orangered;
-    border: none;
-    padding: 0.2rem 0.8rem;
-    border-radius: 15px;
-    color: #ccc;
+.d-flex button{
+    margin: 1.5em .6em;
+    padding: .3em 2.4em;
+}
+
+.container table{
+    margin: 1em 10em;
+}
+
+table .btnedit{
+    color: lightgreen;
     cursor: pointer;
-    margin: 1rem 0;
 }
 
-.esquemas{
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    justify-items: center;
-    align-items: center;
+table .btndelete{
+    color: tomato;
+    cursor: pointer;
+}
+
+/* messages */
+.updatemsg,
+.deletemsg,
+.insertmsg {
+    position: absolute;
+    top: -40px;
+}
+
+.movedown {
+    animation: slideup 3.4s ease;
+}
+
+@keyframes slideup {
+    50% {
+        top: 0
+    }
+
+    100% {
+        top: -40px;
+    }
 }
