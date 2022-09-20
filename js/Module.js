@@ -14,7 +14,7 @@ const SchemaDB = (dbname, table) => {
 }
 
 // insert function
-const bulkcreate = (dbtable, data)=>{
+const insertValuesDB = (dbtable, data)=>{
     let flag = empty(data);
     if(flag){
         dbtable.bulkAdd([data]);
@@ -39,7 +39,7 @@ const empty = object => {
 }
 
 //Get data from database
-const getData = (dbtable, fn)=>{
+const getSchemas = (dbtable, fn)=>{
     let index = 0;
     let obj = {};
     dbtable.count((count)=>{
@@ -75,15 +75,15 @@ const createElement = (tagname, appendTo, fn) =>{
 }
 
 
-//Validate last version
-const validateLastVersion = (dbtable, value) => {
-    dbtable.where('schemanumber').equals(value).count()
-        .then(function (results) {
-            console.log (results);
-        });
+//Validate last version 
+function validateLastVersion(dbtable, value) {
+    let x = dbtable.where('schemanumber').equals(value);
+    let y = x.count().then (function(c){return c});
+    return y;
 };
 
-//Validate last version
+
+//move between version schemas
 const moveBetweenVersion = () => {
     //acciones a realizar para realizar el movimiento entre esquemas
     return true;
@@ -92,8 +92,8 @@ const moveBetweenVersion = () => {
 
 export default SchemaDB;
 export{
-    bulkcreate,
-    getData,
+    insertValuesDB,
+    getSchemas,
     createElement,
     validateLastVersion,
     moveBetweenVersion

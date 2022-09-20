@@ -1,9 +1,8 @@
 
 import SchemaDB, {
-    bulkcreate, 
-    getData, 
+    insertValuesDB, 
+    getSchemas, 
     createElement,
-    validateLastVersion,
     moveBetweenVersion
 } from "./Module.js";
 
@@ -29,7 +28,7 @@ const notfound = document.getElementById("notfound");
 
 //insert value using create button
 btncreate.onclick = (event) =>{
-    let flag = bulkcreate(db.schemas, {
+    let flag = insertValuesDB(db.schemas, {
         schemanumber: schemanumber.value,
         title: title.value, 
         content: content.value, 
@@ -37,7 +36,7 @@ btncreate.onclick = (event) =>{
     });
     title.value = content.value = "";
     version.value = "1";
-    getData(db.schemas, (data)=>{
+    getSchemas(db.schemas, (data)=>{
         schemaid.value = data.id + 1 || 1;
         schemanumber.value = data.id + 1 || 1;
     });
@@ -58,7 +57,7 @@ btnupdate.onclick = () =>{
         content: content.value, 
         version: version.value
     });
-    getData(db.schemas, (data)=>{
+    getSchemas(db.schemas, (data)=>{
         schemaid.value = data.id + 1 || 1;
         schemanumber.value = data.schemanumber || 1;
     });
@@ -90,7 +89,7 @@ function table(){
         tbody.removeChild(tbody.firstChild);
     }
 
-    getData(db.schemas, (data)=>{
+    getSchemas(db.schemas, (data)=>{
         if(data){
             createElement("tr",tbody, tr=>{
                 for (const value in data){
@@ -101,22 +100,28 @@ function table(){
 
                //if index == total versiones
                     createElement("td",tr, td =>{
-                        if(validateLastVersion(db.schemas, data.schemanumber) == parseInt(data.version)){
-                            createElement("i", td, i=>{
-                                i.className += "fas fa-edit btnedit";
-                                i.setAttribute(`data-id`, data.id);
-                                i.onclick = editbtn;
-                            });
-                        }  
+                       db.schemas.where('schemanumber').equals(data.schemanumber).count()
+                                 .then(function(response){
+                            if (response == parseInt(data.version)){
+                                createElement("i", td, i=>{
+                                    i.className += "fas fa-edit btnedit";
+                                    i.setAttribute(`data-id`, data.id);
+                                    i.onclick = editbtn;
+                                });
+                            }
+                        })
                     })
                     createElement("td",tr, td =>{
-                        if(validateLastVersion(db.schemas, data.schemanumber) == parseInt(data.version)){
-                            createElement("i", td, i=>{
-                                i.className += "fas fa-trash-alt btndelete";
-                                i.setAttribute(`data-id`, data.id);
-                                i.onclick = deletebtn;
-                            });
-                        }
+                       db.schemas.where('schemanumber').equals(data.schemanumber).count()
+                                 .then(function(response){
+                        if(response == parseInt(data.version)){
+                                createElement("i", td, i=>{
+                                    i.className += "fas fa-trash-alt btndelete";
+                                    i.setAttribute(`data-id`, data.id);
+                                    i.onclick = deletebtn;
+                                });
+                            }
+                       })
                     })
             
             });
@@ -162,13 +167,13 @@ window.onload = () =>{
 }
 
 function textID(textboxid){
-    getData(db.schemas, data=>{
+    getSchemas(db.schemas, data=>{
         textboxid.value = data.id + 1 || 1;
     });
 }
 
 function textSchemaNumber(textboxschemanumber){
-    getData(db.schemas, data=>{
+    getSchemas(db.schemas, data=>{
         textboxschemanumber.value = parseInt(data.schemanumber) + 1 || 1;
     });
 }
