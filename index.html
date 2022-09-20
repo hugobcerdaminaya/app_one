@@ -20,13 +20,25 @@
 
 <div class="d-flex justify-content-center">
   <form class="w-50">
-    <input type="text" id="schemaid" class="form-control" placeholder="ID" autocomplete="off" disabled readonly> 
+    <div class="row">
+      <div class="col">
+        <label>ID</label>
+        <input type="text" id="schemaid" class="form-control" placeholder="ID" autocomplete="off" disabled readonly> 
+      </div>
+      <div class="col">
+        <label>No. Esquema</label>
+        <input type="text" id="schemanumber" class="form-control" placeholder="Número de esquema" autocomplete="off" disabled readonly> 
+      </div>
+    </div>
+    <label>Título</label>
     <input type="text" id="title" class="form-control" placeholder="Titulo de esquema" autocomplete="off"> 
     <div class="row">
       <div class="col">
+        <label>Contenido</label>
         <input type="text" id="content" class="form-control m-0" placeholder="Contenido" autocomplete="off"> 
       </div>
       <div class="col">
+        <label>Versión</label>
         <input type="text" id="version" class="form-control m-0" placeholder="Version" autocomplete="off" value="1" disabled readonly> 
       </div>
     </div>
@@ -45,6 +57,7 @@
     <thead>
       <tr>
         <th scope="col">ID</th>
+        <th scope="col">Esquema</th>
         <th scope="col">Titulo</th>
         <th scope="col">Contenido</th>
         <th scope="col">Version</th>

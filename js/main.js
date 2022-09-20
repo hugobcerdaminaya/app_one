@@ -2,15 +2,18 @@
 import SchemaDB, {
     bulkcreate, 
     getData, 
-    createElement
+    createElement,
+    validateLastVersion,
+    moveBetweenVersion
 } from "./Module.js";
 
 let db = SchemaDB("SchemaDB",
-    {schemas: `++id, title, content, version`});
+    {schemas: `++id, title, content, version, schemanumber`});
 
 
 //inputs
 const schemaid = document.getElementById("schemaid");
+const schemanumber = document.getElementById("schemanumber");
 const title = document.getElementById("title");
 const content = document.getElementById("content");
 const version = document.getElementById("version");
@@ -27,6 +30,7 @@ const notfound = document.getElementById("notfound");
 //insert value using create button
 btncreate.onclick = (event) =>{
     let flag = bulkcreate(db.schemas, {
+        schemanumber: schemanumber.value,
         title: title.value, 
         content: content.value, 
         version: version.value
@@ -35,6 +39,7 @@ btncreate.onclick = (event) =>{
     version.value = "1";
     getData(db.schemas, (data)=>{
         schemaid.value = data.id + 1 || 1;
+        schemanumber.value = data.id + 1 || 1;
     });
     table();
     let insertmsg = document.querySelector(".insertmsg");
@@ -48,32 +53,20 @@ btnread.onclick = table;
 //update event on btn update button
 btnupdate.onclick = () =>{
     let flag = bulkcreate(db.schemas, {
+        schemanumber: schemanumber.value, 
         title: title.value, 
         content: content.value, 
         version: version.value
     });
     getData(db.schemas, (data)=>{
         schemaid.value = data.id + 1 || 1;
+        schemanumber.value = data.schemanumber || 1;
     });
     table();
     let updatemsg = document.querySelector(".updatemsg");
     getMsg(flag, updatemsg);
     title.value = content.value = "";
     version.value = "1";
-    /*const id = parseInt(schemaid.value || 0);
-    if(id){
-        db.schemas.update(id, {
-            title:title.value,
-            content:content.value,
-            version:version.value
-        }).then((updated)=>{
-            let get = updated ? true : false;
-            let updatemsg = document.querySelector(".updatemsg");
-            getMsg(get, updatemsg);
-            table();
-            title.value = content.value = version.value = "";
-        });
-    }*/
 };
 
 //delete records
@@ -105,22 +98,27 @@ function table(){
                         td.textContent = data[value];
                     });
                 }
-                createElement("td",tr, td =>{
-                    createElement("i", td, i=>{
-                        i.className += "fas fa-edit btnedit";
-                        i.setAttribute(`data-id`, data.id);
-                        i.onclick = editbtn;
-                    });
-                    
-                })
-                createElement("td",tr, td =>{
-                    createElement("i", td, i=>{
-                        i.className += "fas fa-trash-alt btndelete";
-                        i.setAttribute(`data-id`, data.id);
-                        i.onclick = deletebtn;
-                    });
-                    
-                })
+
+               //if index == total versiones
+                    createElement("td",tr, td =>{
+                        if(validateLastVersion(db.schemas, data.schemanumber) == parseInt(data.version)){
+                            createElement("i", td, i=>{
+                                i.className += "fas fa-edit btnedit";
+                                i.setAttribute(`data-id`, data.id);
+                                i.onclick = editbtn;
+                            });
+                        }  
+                    })
+                    createElement("td",tr, td =>{
+                        if(validateLastVersion(db.schemas, data.schemanumber) == parseInt(data.version)){
+                            createElement("i", td, i=>{
+                                i.className += "fas fa-trash-alt btndelete";
+                                i.setAttribute(`data-id`, data.id);
+                                i.onclick = deletebtn;
+                            });
+                        }
+                    })
+            
             });
         }else{
             notfound.textContent = "No se han encontrado registros en la base de datos";
@@ -131,7 +129,8 @@ function table(){
 function editbtn(event){
     let id = parseInt(event.target.dataset.id);
     db.schemas.get(id,data=>{
-        schemaid.value = data.id + 1; //data.id || 0;
+        schemaid.value = data.id + 1;
+        schemanumber.value = data.schemanumber;
         title.value = data.title || "";
         content.value = data.content || "";
         version.value = parseInt(data.version) + 1 || "";
@@ -159,11 +158,18 @@ function getMsg(flag,element){
 window.onload = () =>{
     table();
     textID(schemaid);
+    textSchemaNumber(schemanumber);
 }
 
 function textID(textboxid){
     getData(db.schemas, data=>{
         textboxid.value = data.id + 1 || 1;
+    });
+}
+
+function textSchemaNumber(textboxschemanumber){
+    getData(db.schemas, data=>{
+        textboxschemanumber.value = parseInt(data.schemanumber) + 1 || 1;
     });
 }
 

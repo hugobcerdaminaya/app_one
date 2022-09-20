@@ -1,3 +1,10 @@
+//Api frontend
+//routes
+
+
+//urldomain/api/esquema/{data} --- store
+//urldomain/api/esquema/{id} --- get
+
 const SchemaDB = (dbname, table) => {
     // create database
     const db = new Dexie(dbname);
@@ -52,6 +59,7 @@ const sortObj = sortboj => {
     let obj = {};
     obj = {
         id:sortboj.id,
+        schemanumber:sortboj.schemanumber,
         title:sortboj.title,
         content:sortboj.content,
         version:sortboj.version
@@ -66,9 +74,27 @@ const createElement = (tagname, appendTo, fn) =>{
     if(fn) fn(element);
 }
 
+
+//Validate last version
+const validateLastVersion = (dbtable, value) => {
+    dbtable.where('schemanumber').equals(value).count()
+        .then(function (results) {
+            console.log (results);
+        });
+};
+
+//Validate last version
+const moveBetweenVersion = () => {
+    //acciones a realizar para realizar el movimiento entre esquemas
+    return true;
+};
+
+
 export default SchemaDB;
 export{
     bulkcreate,
     getData,
-    createElement
+    createElement,
+    validateLastVersion,
+    moveBetweenVersion
 }
