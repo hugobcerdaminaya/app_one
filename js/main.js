@@ -51,7 +51,7 @@ btnread.onclick = table;
 
 //update event on btn update button
 btnupdate.onclick = () =>{
-    let flag = bulkcreate(db.schemas, {
+    let flag = insertValuesDB(db.schemas, {
         schemanumber: schemanumber.value, 
         title: title.value, 
         content: content.value, 
