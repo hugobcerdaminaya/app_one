@@ -1,12 +1,8 @@
 
-import SchemaDB, {
-    insertValuesDB, 
-    getSchemas, 
-    createElement,
-    moveBetweenVersion
-} from "./Module.js";
+import apiModule from "./Module.js";
 
-let db = SchemaDB("SchemaDB",
+let api = new apiModule();
+let db = api.SchemaDB("SchemaDB",
     {schemas: `++id, title, content, version, schemanumber`});
 
 
@@ -28,7 +24,7 @@ const notfound = document.getElementById("notfound");
 
 //insert value using create button
 btncreate.onclick = (event) =>{
-    let flag = insertValuesDB(db.schemas, {
+    let flag = api.insertValuesDB(db.schemas, {
         schemanumber: schemanumber.value,
         title: title.value, 
         content: content.value, 
@@ -36,7 +32,7 @@ btncreate.onclick = (event) =>{
     });
     title.value = content.value = "";
     version.value = "1";
-    getSchemas(db.schemas, (data)=>{
+    api.getSchemas(db.schemas, (data)=>{
         schemaid.value = data.id + 1 || 1;
         schemanumber.value = data.id + 1 || 1;
     });
@@ -51,13 +47,13 @@ btnread.onclick = table;
 
 //update event on btn update button
 btnupdate.onclick = () =>{
-    let flag = insertValuesDB(db.schemas, {
+    let flag = api.insertValuesDB(db.schemas, {
         schemanumber: schemanumber.value, 
         title: title.value, 
         content: content.value, 
         version: version.value
     });
-    getSchemas(db.schemas, (data)=>{
+    api.getSchemas(db.schemas, (data)=>{
         schemaid.value = data.id + 1 || 1;
         schemanumber.value = data.schemanumber || 1;
     });
@@ -71,7 +67,7 @@ btnupdate.onclick = () =>{
 //delete records
 btndelete.onclick = () =>{
     db.delete();
-    db = SchemaDB("SchemaDB",
+    db = api.SchemaDB("SchemaDB",
         {schemas: `++id, title, content, version`
     });
     db.open();
@@ -89,21 +85,21 @@ function table(){
         tbody.removeChild(tbody.firstChild);
     }
 
-    getSchemas(db.schemas, (data)=>{
+    api.getSchemas(db.schemas, (data)=>{
         if(data){
-            createElement("tr",tbody, tr=>{
+            api.createElement("tr",tbody, tr=>{
                 for (const value in data){
-                    createElement("td", tr, td=>{
+                    api.createElement("td", tr, td=>{
                         td.textContent = data[value];
                     });
                 }
 
                //if index == total versiones
-                    createElement("td",tr, td =>{
+                    api.createElement("td",tr, td =>{
                        db.schemas.where('schemanumber').equals(data.schemanumber).count()
                                  .then(function(response){
                             if (response == parseInt(data.version)){
-                                createElement("i", td, i=>{
+                                api.createElement("i", td, i=>{
                                     i.className += "fas fa-edit btnedit";
                                     i.setAttribute(`data-id`, data.id);
                                     i.onclick = editbtn;
@@ -111,11 +107,11 @@ function table(){
                             }
                         })
                     })
-                    createElement("td",tr, td =>{
+                    api.createElement("td",tr, td =>{
                        db.schemas.where('schemanumber').equals(data.schemanumber).count()
                                  .then(function(response){
                         if(response == parseInt(data.version)){
-                                createElement("i", td, i=>{
+                                api.createElement("i", td, i=>{
                                     i.className += "fas fa-trash-alt btndelete";
                                     i.setAttribute(`data-id`, data.id);
                                     i.onclick = deletebtn;
@@ -167,13 +163,13 @@ window.onload = () =>{
 }
 
 function textID(textboxid){
-    getSchemas(db.schemas, data=>{
+    api.getSchemas(db.schemas, data=>{
         textboxid.value = data.id + 1 || 1;
     });
 }
 
 function textSchemaNumber(textboxschemanumber){
-    getSchemas(db.schemas, data=>{
+    api.getSchemas(db.schemas, data=>{
         textboxschemanumber.value = parseInt(data.schemanumber) + 1 || 1;
     });
 }
