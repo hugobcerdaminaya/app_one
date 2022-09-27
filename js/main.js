@@ -1,11 +1,11 @@
 
 import apiModule from "./Module.js";
 
-let api = new apiModule();
-let db = api.SchemaDB("SchemaDB",
-    {schemas: `++id, title, content, version, schemanumber, current`});
+//indexedDB
+const indexedDB = window.indexedDB;
+const form = document.getElementById("form")
 
-
+//UI
 //inputs
 const schemaid = document.getElementById("schemaid");
 const schemanumber = document.getElementById("schemanumber");
@@ -21,10 +21,31 @@ const btndelete = document.getElementById("btn-delete");
 
 //notfound
 const notfound = document.getElementById("notfound");
+const api = new apiModule();
+let db = api.SchemaDB("SchemaDB",
+    {schemas: `++id, title, content, version, schemanumber, current`});
+if(indexedDB && form){
+    let db;
+    const api2 = new apiModule();
+    const request = api2.openDB(indexedDB, 'SchemaSinDixieDB', 1);
+    request.onsuccess = () =>{
+        db = request.result
+        console.log('OPEN', db)
+        //readData()
+    }
+    request.onupgradeneeded = () =>{
+        db = request.result
+        console.log('CREATE', db)
+        const objectSore = api2.createObjectStore(db, 'schemas', { keyPath: "id", autoIncrement:true })
+    }
 
-//insert value using create button
-btncreate.onclick = (event) =>{
-    let flag = api.insertValuesDB(db.schemas, {
+    request.onerror = (error) =>{
+        console.log('Error'. error)
+    }
+
+    //insert value using create button
+    btncreate.onclick = (event) =>{
+    let flag = api2.insertValuesDB(db, 'schemas',{
         schemanumber: schemanumber.value,
         title: title.value, 
         content: content.value, 
@@ -32,7 +53,7 @@ btncreate.onclick = (event) =>{
     });
     title.value = content.value = "";
     version.value = "1";
-    api.getSchemas(db.schemas, (data)=>{
+    api2.getSchemas(db, 'schemas', (data)=>{
         schemaid.value = data.id + 1 || 1;
         schemanumber.value = data.id + 1 || 1;
     });
@@ -40,13 +61,23 @@ btncreate.onclick = (event) =>{
     let insertmsg = document.querySelector(".insertmsg");
     getMsg(flag,insertmsg);
 }
+}
+
+/**let api = new apiModule();
+let db = api.SchemaDB("SchemaDB",
+    {schemas: `++id, title, content, version, schemanumber, current`});*/
+
+
+
+
+
 
 
 //create event on btn read button
-btnread.onclick = table;
+//btnread.onclick = table;
 
 //update event on btn update button
-btnupdate.onclick = () =>{
+/*btnupdate.onclick = () =>{
     let flag = api.changeVersionSchema(db.schemas, {
         schemanumber: schemanumber.value, 
         title: title.value, 
@@ -62,10 +93,10 @@ btnupdate.onclick = () =>{
     getMsg(flag, updatemsg);
     title.value = content.value = "";
     version.value = "1";
-};
+};*/
 
 //delete records
-btndelete.onclick = () =>{
+/*btndelete.onclick = () =>{
     db.delete();
     db = api.SchemaDB("SchemaDB",
         {schemas: `++id, title, content, version`
@@ -76,7 +107,7 @@ btndelete.onclick = () =>{
     let deletemsg = document.querySelector(".deletemsg");
     getMsg(true, deletemsg);
     textID(schemaid);
-}
+}*/
 
 function table(){
     const tbody = document.getElementById("tbody")
@@ -127,7 +158,7 @@ function table(){
     }); 
 }
 
-function editbtn(event){
+/*function editbtn(event){
     let id = parseInt(event.target.dataset.id);
     db.schemas.get(id,data=>{
         schemaid.value = data.id + 1;
@@ -136,15 +167,15 @@ function editbtn(event){
         content.value = data.content || "";
         version.value = parseInt(data.version) + 1 || "";
     })
-}
+}*/
 
-function deletebtn(event){
+/*function deletebtn(event){
     let id = parseInt(event.target.dataset.id);
     db.schemas.delete(id);
     table();
-}
+}*/
 
-function getMsg(flag,element){
+/*function getMsg(flag,element){
     if(flag){
         element.className += "movedown";
         setTimeout(()=>{
@@ -153,7 +184,7 @@ function getMsg(flag,element){
             });
         }, 4000)
     }
-}
+}*/
 
 //window onload event
 window.onload = () =>{
@@ -162,17 +193,17 @@ window.onload = () =>{
     textSchemaNumber(schemanumber);
 }
 
-function textID(textboxid){
+/*function textID(textboxid){
     api.getSchemas(db.schemas, data=>{
         textboxid.value = data.id + 1 || 1;
     });
-}
+}*/
 
-function textSchemaNumber(textboxschemanumber){
+/*function textSchemaNumber(textboxschemanumber){
     api.getSchemas(db.schemas, data=>{
         textboxschemanumber.value = parseInt(data.schemanumber) + 1 || 1;
     });
-}
+}*/
 
 
 

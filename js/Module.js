@@ -1,4 +1,12 @@
 export default class apiModule{
+    openDB(indexedDB, nameDB, version){
+        return indexedDB.open(nameDB, version);
+    }
+
+    createObjectStore(db, name, data){
+        return db.createObjectStore(name, data)
+    }
+
     SchemaDB(dbname, table){
         // create database
         const db = new Dexie(dbname);
@@ -21,10 +29,13 @@ export default class apiModule{
     }
 
     // 1. insert function (on diagram)
-    insertValuesDB(dbtable, data){
+    insertValuesDB(dbtable, name, data){
         let flag = this.empty(data);
         if(flag){
-            dbtable.bulkAdd([data]);
+            //dbtable.bulkAdd([data]);
+            const transaction = dbtable.transaction([name], 'readwrite');
+            const objectSore = transaction.objectStore(name);
+            const request = objectSore.add(data);
             console.log('dato insertado satisfactoriamente');
         }else{
             console.log('Porfavor ingresa datos');
@@ -64,19 +75,24 @@ export default class apiModule{
     }
     
     //Get data from database
-    getSchemas(dbtable, fn){
+    getSchemas(dbtable, name, fn){
         let index = 0;
         let obj = {};
-        dbtable.count((count)=>{
-            if(count){
+        //dbtable.count((count)=>{
+        const transaction = dbtable.transaction([name], 'readonly');
+        const objectStore = transaction.objectStore(name);
+        const countRequest = objectStore.count();
+        countRequest.onsuccess = () => {    
+            if(countRequest){
+                console.log(countRequest.result)
                 dbtable.each(table=>{
                     obj = this.sortObj(table);
                     fn(obj, index++);
                 })
             }else{
-                fn(0);
+                fn(0)
             }
-        })
+        }
     }
     
     
