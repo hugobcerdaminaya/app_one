@@ -3,7 +3,7 @@ import apiModule from "./Module.js";
 
 let api = new apiModule();
 let db = api.SchemaDB("SchemaDB",
-    {schemas: `++id, title, content, version, schemanumber`});
+    {schemas: `++id, title, content, version, schemanumber, current`});
 
 
 //inputs
@@ -47,7 +47,7 @@ btnread.onclick = table;
 
 //update event on btn update button
 btnupdate.onclick = () =>{
-    let flag = api.insertValuesDB(db.schemas, {
+    let flag = api.changeVersionSchema(db.schemas, {
         schemanumber: schemanumber.value, 
         title: title.value, 
         content: content.value, 

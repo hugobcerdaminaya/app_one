@@ -20,7 +20,7 @@ export default class apiModule{
         return flag;
     }
 
-    // insert function
+    // 1. insert function (on diagram)
     insertValuesDB(dbtable, data){
         let flag = this.empty(data);
         if(flag){
@@ -31,6 +31,24 @@ export default class apiModule{
         }
         return flag;
     }
+
+    // 2. change version schema (on diagram)
+    changeVersionSchema(dbtable, data){
+        let flag = this.empty(data);
+        if(flag){
+            dbtable.bulkAdd([data]);
+            console.log('dato insertado satisfactoriamente');
+        }else{
+            console.log('Porfavor ingresa datos');
+        }
+        return flag;
+    }
+
+     // 3 .move between version schemas (on diagram)
+     moveBetweenVersion(){
+        //acciones a realizar para realizar el movimiento entre esquemas
+        return true;
+    };
     
     //Sort object
     sortObj(sortboj){
@@ -70,9 +88,5 @@ export default class apiModule{
     }
     
     
-    //move between version schemas
-    moveBetweenVersion(){
-        //acciones a realizar para realizar el movimiento entre esquemas
-        return true;
-    };
+   
 }
